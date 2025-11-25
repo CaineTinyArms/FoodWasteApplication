@@ -1,4 +1,4 @@
-package com.example.foodwasteapplication.
+package com.example.foodwasteapplication
 
 import android.os.Bundle
 import android.view.LayoutInflater
