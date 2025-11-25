@@ -8,19 +8,17 @@ import androidx.fragment.app.Fragment
 
 class MainActivity : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Load the home screen by default
         loadFragment(ListFragment())
 
-        // Get references to UI elements
         val homeButton = findViewById<ImageButton>(R.id.homeButton)
         val scanButton = findViewById<ImageButton>(R.id.scanButton)
         val recipesButton = findViewById<ImageButton>(R.id.recipesButton)
 
-        // Bottom navigation button listeners
         homeButton.setOnClickListener {
             loadFragment(ListFragment())
         }
@@ -34,15 +32,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Function to swap fragments
-    private fun loadFragment(fragment: Fragment) {
+    private fun loadFragment(fragment: Fragment)
+    {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment)
             .commit()
     }
 
-    // Allow fragments to update the title bar
-    fun setTitleText(text: String) {
+    fun setTitleText(text: String)
+    {
         val titleView = findViewById<TextView>(R.id.topTitle)
         titleView.text = text
     }
