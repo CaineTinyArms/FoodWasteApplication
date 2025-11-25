@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">FoodWasteApplication</string>
-    <string name="home_title"> My Pantry</string>
+    <string name="home_title"> My Food</string>
     <string name="homeDescription">Home</string>
     <string name="cameraDescription">Camera</string>
     <string name="recipeDescription">Recipes</string>
