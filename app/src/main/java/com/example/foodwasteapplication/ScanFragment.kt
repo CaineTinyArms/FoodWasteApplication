@@ -8,15 +8,14 @@ import android.view.ViewGroup
 
 class ScanFragment : Fragment()
 {
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? // used to create the fragment UI from the XML.
     {
-        return inflater.inflate(R.layout.fragment_scan, container, false)
+        return inflater.inflate(R.layout.fragment_scan, container, false) // inflater converts XML to View, container is the parent layout.
     }
 
-    override fun onResume()
+    override fun onResume() // when the fragment becomes visible and interactive.
     {
         super.onResume()
-        (activity as MainActivity).setTitleText("Scan Item")
+        (activity as MainActivity).setTitleText("Scan Item") // cast activity to mainActivity to be able to call the setTitleText Function.
     }
 }

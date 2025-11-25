@@ -13,12 +13,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Loads ListFragment as the default.
         loadFragment(ListFragment())
 
+        // Gets references for the navigation buttons.
         val homeButton = findViewById<ImageButton>(R.id.homeButton)
         val scanButton = findViewById<ImageButton>(R.id.scanButton)
         val recipesButton = findViewById<ImageButton>(R.id.recipesButton)
 
+        // Loads the respective fragment when the buttons are pressed.
         homeButton.setOnClickListener {
             loadFragment(ListFragment())
         }
@@ -32,13 +35,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     private fun loadFragment(fragment: Fragment)
     {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, fragment)
-            .commit()
+        supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, fragment).commit()
     }
 
+    // Called from fragments to update the title text.
     fun setTitleText(text: String)
     {
         val titleView = findViewById<TextView>(R.id.topTitle)
