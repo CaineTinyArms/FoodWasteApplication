@@ -16,80 +16,82 @@ import androidx.fragment.app.Fragment
 
 class ScanFragment : Fragment() {
 
-    private val cameraRequestCode = 1001
+    private val cameraRequestCode = 1001 // used to correlate permission results with permission requests.
 
     private var previewView: PreviewView? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+    {
         return inflater.inflate(R.layout.fragment_scan, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // get PreviewView from XML
+        // get PreviewView from fragment_scan.xml.
         previewView = view.findViewById(R.id.cameraPreview)
     }
 
-    override fun onResume() {
+    override fun onResume()
+    {
         super.onResume()
 
         (activity as MainActivity).setTitleText("Scan Item")
 
-        if (hasCameraPermission()) {
+        // If app has camera permissions, launch camera.
+        if (hasCameraPermission())
+        {
             Log.d("ScanFragment", "Permission already granted → starting camera.")
             startCamera()
-        } else {
+        }
+        // Otherwise, ask for permission.
+        else
+        {
             Log.d("ScanFragment", "Requesting camera permission...")
-            @Suppress("DEPRECATION")
+            @Suppress("DEPRECATION") // Did this to remove the yellow warning.
             requestPermissions(arrayOf(Manifest.permission.CAMERA), cameraRequestCode)
         }
     }
 
-    private fun hasCameraPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
+    // Helper function that returns true if app has camera permissions.
+    private fun hasCameraPermission(): Boolean
+    {
+        return ContextCompat.checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in Java") // Did this to remove the yellow warning.
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray)
+    {
+        @Suppress("DEPRECATION") // Did this to remove the yellow warning.
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (requestCode == cameraRequestCode) {
-            if (grantResults.isNotEmpty() &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        // If the request is the camera request, and the user pressed Allow, start the camera.
+        if (requestCode == cameraRequestCode)
+        {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
                 startCamera()
-            } else {
+            }
+            // Otherwise, log the result.
+            else {
                 Log.e("ScanFragment", "Camera permission denied.")
             }
         }
     }
 
-    private fun startCamera() {
+    private fun startCamera()
+    {
+        val pv = previewView ?: run { Log.e("ScanFragment", "PreviewView is null — cannot start camera.") // Stop the function if PreviewView cannot be found from fragment_scan.xml.
+            return }
 
-        val pv = previewView ?: run {
-            Log.e("ScanFragment", "PreviewView is null — cannot start camera.")
-            return
-        }
-
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext()) // CameraProvider is the thing that controls CameraX.
 
         cameraProviderFuture.addListener({
 
             val cameraProvider = cameraProviderFuture.get()
 
-            val preview = Preview.Builder().build()
-            preview.setSurfaceProvider(pv.surfaceProvider)
+            val preview = Preview.Builder().build() // Builds a preview use case, telling CameraX that a live camera preview is needed.
+            preview.surfaceProvider = pv.surfaceProvider // Binds preview to the PreviewView from fragment_scan.xml.
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
@@ -98,7 +100,9 @@ class ScanFragment : Fragment() {
                 cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview
                 )
-            } catch (e: Exception) {
+            }
+            catch (e: Exception)
+            {
                 Log.e("ScanFragment", "Camera failed to bind", e)
             }
 
