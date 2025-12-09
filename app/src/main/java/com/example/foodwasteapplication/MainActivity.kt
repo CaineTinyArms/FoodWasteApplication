@@ -5,6 +5,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import android.view.View
 
 class MainActivity : AppCompatActivity() {
 
@@ -12,6 +13,8 @@ class MainActivity : AppCompatActivity() {
     {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        hideSystemUI()
 
         // Loads ListFragment as the default.
         loadFragment(ListFragment())
@@ -34,6 +37,13 @@ class MainActivity : AppCompatActivity() {
             loadFragment(RecipesFragment())
         }
     }
+
+    @Suppress("DEPRECATION")
+    fun hideSystemUI()
+    {
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+    }
+
 
 
     private fun loadFragment(fragment: Fragment)

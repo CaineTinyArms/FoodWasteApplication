@@ -17,5 +17,6 @@ class RecipesFragment : Fragment()
     {
         super.onResume()
         (activity as MainActivity).setTitleText("Recipes") // cast activity to mainActivity to be able to call the setTitleText Function.
+        (activity as MainActivity).hideSystemUI()
     }
 }

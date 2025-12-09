@@ -42,8 +42,8 @@ class ScanFragment : Fragment() {
     override fun onResume()
     {
         super.onResume()
-
         (activity as MainActivity).setTitleText("Scan Item")
+        (activity as MainActivity).hideSystemUI()
 
         // If app has camera permissions, launch camera.
         if (hasCameraPermission())

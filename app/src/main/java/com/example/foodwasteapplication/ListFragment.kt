@@ -17,6 +17,7 @@ class ListFragment : Fragment() {
     {
         super.onResume()
         (activity as MainActivity).setTitleText("Food List") // cast activity to mainActivity to be able to call the setTitleText Function.
+        (activity as MainActivity).hideSystemUI()
     }
 }
 
