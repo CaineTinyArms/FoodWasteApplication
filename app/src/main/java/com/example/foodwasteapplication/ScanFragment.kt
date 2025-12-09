@@ -15,7 +15,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.google.mlkit.vision.barcode.BarcodeScanner
+import  com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.common.InputImage
 
@@ -37,6 +38,7 @@ class ScanFragment : Fragment() {
         previewView = view.findViewById(R.id.cameraPreview)
     }
 
+    @androidx.camera.core.ExperimentalGetImage
     override fun onResume()
     {
         super.onResume()
@@ -64,6 +66,7 @@ class ScanFragment : Fragment() {
         return ContextCompat.checkSelfPermission(requireContext(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
     }
 
+    @androidx.camera.core.ExperimentalGetImage
     @Deprecated("Deprecated in Java") // Did this to remove the yellow warning.
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray)
     {
@@ -84,35 +87,81 @@ class ScanFragment : Fragment() {
         }
     }
 
-    private fun startCamera()
-    {
-        val pv = previewView ?: run { Log.e("ScanFragment", "PreviewView is null — cannot start camera.") // Stop the function if PreviewView cannot be found from fragment_scan.xml.
-            return }
+    @androidx.camera.core.ExperimentalGetImage
+    private fun startCamera() {
+        val pv = previewView ?: return
 
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext()) // CameraProvider is the thing that controls CameraX.
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
 
         cameraProviderFuture.addListener({
-
             val cameraProvider = cameraProviderFuture.get()
 
-            val preview = Preview.Builder().build() // Builds a preview use case, telling CameraX that a live camera preview is needed.
-            preview.surfaceProvider = pv.surfaceProvider // Binds preview to the PreviewView from fragment_scan.xml.
+            // Camera Preview
+            val preview = Preview.Builder().build()
+            preview.surfaceProvider = pv.surfaceProvider
+
+            // Barcode Scanner options (only common formats)
+            val options = BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_EAN_13,Barcode.FORMAT_EAN_8, Barcode.FORMAT_UPC_A, Barcode.FORMAT_UPC_E, Barcode.FORMAT_CODE_128).build()
+
+            val scanner = BarcodeScanning.getClient(options)
+
+            // Image Analyzer
+            val analysis = ImageAnalysis.Builder().build().also {
+                it.setAnalyzer(ContextCompat.getMainExecutor(requireContext())) { imageProxy -> processImageProxy(scanner, imageProxy)
+                }
+            }
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             try {
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview
-                )
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview, analysis)
             }
-            catch (e: Exception)
-            {
-                Log.e("ScanFragment", "Camera failed to bind", e)
+            catch (e: Exception) {
+                Log.e("ScanFragment", "Camera failed to start", e)
             }
 
         }, ContextCompat.getMainExecutor(requireContext()))
     }
+
+    @androidx.camera.core.ExperimentalGetImage
+    private fun processImageProxy(scanner: com.google.mlkit.vision.barcode.BarcodeScanner, imageProxy: ImageProxy) {
+        val mediaImage = imageProxy.image ?: run {
+            imageProxy.close()
+            return
+        }
+
+        val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+
+        scanner.process(inputImage).addOnSuccessListener { barcodes ->
+                for (barcode in barcodes)
+                {
+                    val rawValue = barcode.rawValue
+                    if (rawValue != null)
+                    {
+                        Log.d("ScanFragment", "Barcode detected: $rawValue")
+                        onBarcodeScanned(rawValue)
+                        break
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Log.e("ScanFragment", "Barcode scanning failed", it)
+            }
+            .addOnCompleteListener {
+                imageProxy.close()
+            }
+    }
+
+    private var hasScanned = false
+
+    private fun onBarcodeScanned(code: String) {
+        if (hasScanned) return
+        hasScanned = true
+
+        Log.d("ScanFragment", "Final barcode: $code")
+    }
+
 
     override fun onDestroyView() {
         previewView = null
