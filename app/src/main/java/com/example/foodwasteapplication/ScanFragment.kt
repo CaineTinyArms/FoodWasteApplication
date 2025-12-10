@@ -189,6 +189,10 @@ class ScanFragment : Fragment() {
         })
     }
 
+    private fun showProductDialog(name: String, imageUrl: String?){
+
+    }
+
     override fun onDestroyView() {
         previewView = null
         super.onDestroyView()

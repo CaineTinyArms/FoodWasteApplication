@@ -4,4 +4,7 @@
     <string name="homeDescription">Home</string>
     <string name="cameraDescription">Camera</string>
     <string name="recipeDescription">Recipes</string>
+    <string name="confirm">Yes</string>
+    <string name="cancel">No</string>
+    <string name="confirmItem">Is this the correct item?</string>
 </resources>
