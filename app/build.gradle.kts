@@ -53,4 +53,6 @@ dependencies {
     implementation(libs.camerax.lifecycle)
     implementation(libs.camerax.view)
     implementation(libs.mlkit.barcode)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 }
