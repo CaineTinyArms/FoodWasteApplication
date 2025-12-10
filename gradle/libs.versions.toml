@@ -13,6 +13,7 @@ camerax = "1.5.1"
 mlkit_barcode = "17.3.0"
 retrofit = "2.11.0"
 converterGson = "2.11.0"
+glide = "4.16.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -27,9 +28,10 @@ camerax-core = { group = "androidx.camera", name = "camera-core", version.ref = 
 camerax-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
 camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
 camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
-mlkit-barcode = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkit_barcode"}
-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit"}
-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converterGson"}
+mlkit-barcode = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkit_barcode" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converterGson" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -7,6 +7,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -15,7 +18,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import  com.google.mlkit.vision.barcode.common.Barcode
+import com.bumptech.glide.Glide
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.common.InputImage
@@ -190,7 +194,35 @@ class ScanFragment : Fragment() {
     }
 
     private fun showProductDialog(name: String, imageUrl: String?){
+        val dialogView = layoutInflater.inflate(R.layout.dialog_product_confirm, null)
+        val imageView = dialogView.findViewById<ImageView>(R.id.productImage)
+        val nameView = dialogView.findViewById<TextView>(R.id.productName)
+        val yesButton = dialogView.findViewById<Button>(R.id.yesButton)
+        val noButton = dialogView.findViewById<Button>(R.id.noButton)
 
+        nameView.text = name
+
+        if (!imageUrl.isNullOrEmpty()) {
+            Glide.with(this).load(imageUrl).into(imageView)
+            imageView.visibility = View.VISIBLE
+        }
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        yesButton.setOnClickListener {
+            dialog.dismiss()
+            hasScanned = false
+        }
+
+        noButton.setOnClickListener {
+            dialog.dismiss()
+            hasScanned = false
+        }
+
+        dialog.show()
     }
 
     override fun onDestroyView() {
