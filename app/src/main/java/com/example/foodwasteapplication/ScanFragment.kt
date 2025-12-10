@@ -159,9 +159,35 @@ class ScanFragment : Fragment() {
         if (hasScanned) return
         hasScanned = true
 
-        Log.d("ScanFragment", "Final barcode: $code")
+        Log.d("ScanFragment", "Barcode: $code")
+        fetchProductFromApi(code)
     }
 
+    private fun fetchProductFromApi(barcode: String) {
+        val call = RetrofitClient.api.getProduct(barcode)
+
+        call.enqueue(object : retrofit2.Callback<ProductResponse> {
+            override fun onResponse(
+                call: retrofit2.Call<ProductResponse>,
+                response: retrofit2.Response<ProductResponse>
+            ) {
+                val product = response.body()?.product
+                if (product != null) {
+                    showProductDialog(
+                        product.product_name ?: "Unknown product",
+                        product.image_url
+                    )
+                } else {
+                    showProductDialog("Unknown product", null)
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<ProductResponse>, t: Throwable) {
+                Log.e("ScanFragment", "API failed", t)
+                showProductDialog("Product not found", null)
+            }
+        })
+    }
 
     override fun onDestroyView() {
         previewView = null
