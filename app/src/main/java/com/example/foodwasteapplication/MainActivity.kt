@@ -6,6 +6,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import android.view.View
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,9 +46,7 @@ class MainActivity : AppCompatActivity() {
     {
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
     }
-
-
-
+    
     private fun loadFragment(fragment: Fragment)
     {
         supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, fragment).commit()
