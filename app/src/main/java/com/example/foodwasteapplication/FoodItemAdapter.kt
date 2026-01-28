@@ -36,7 +36,10 @@ class FoodItemAdapter(
             nameText.text = item.name
 
             val expiryDate = LocalDate.ofEpochDay(item.expiryDateEpochDay)
-            expiryText.text = "Expires: $expiryDate"
+
+            val formattedDate = expiryDate.format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+
+            expiryText.text = "Expires: $formattedDate"
         }
     }
 }
