@@ -36,10 +36,20 @@ class FoodItemAdapter(
             nameText.text = item.name
 
             val expiryDate = LocalDate.ofEpochDay(item.expiryDateEpochDay)
+            val todayDate = LocalDate.now()
+
+            val daysRemaining = java.time.temporal.ChronoUnit.DAYS.between(todayDate, expiryDate)
 
             val formattedDate = expiryDate.format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"))
 
-            expiryText.text = "Expires: $formattedDate"
+            val statusText = when {
+                daysRemaining < 0 -> "Expired"
+                daysRemaining == 0L -> "Expires Today"
+                daysRemaining == 1L -> "Expires Tomorrow"
+                else -> "Expires in $daysRemaining days"
+            }
+
+            expiryText.text = "Expires: $formattedDate ($statusText)"
         }
     }
 }
