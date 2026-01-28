@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.recyclerview.widget.ItemTouchHelper
+import com.google.android.material.snackbar.Snackbar
 
 class ListFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
@@ -30,6 +32,7 @@ class ListFragment : Fragment() {
         recyclerView = view.findViewById(R.id.foodRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
+        attachSwipeToDelete()
     }
 
     override fun onResume() {
@@ -49,4 +52,47 @@ class ListFragment : Fragment() {
         }
     }
 
+    private fun attachSwipeToDelete() {
+        val swipeCallback = object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.bindingAdapterPosition
+                val item = adapter.getItemAt(position)
+
+                adapter.removeAt(position)
+
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    val db = AppDatabase.getInstance(requireContext())
+                    db.foodItemDao().deleteById(item.id)
+                }
+
+                // Undo option
+                Snackbar.make(requireView(), "Item deleted", Snackbar.LENGTH_LONG)
+                    .setAction("Undo") {
+                        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                            val db = AppDatabase.getInstance(requireContext())
+                            db.foodItemDao().insert(item)
+                            val items = db.foodItemDao().getAll()
+                            withContext(Dispatchers.Main) { adapter.submitList(items) }
+                        }
+                    }
+                    .addCallback(object : Snackbar.Callback() {
+                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                            loadItems()
+                        }
+                    })
+                    .show()
+            }
+        }
+
+        ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
+    }
 }

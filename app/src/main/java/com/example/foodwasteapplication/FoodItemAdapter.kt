@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener
 import java.time.LocalDate
 
 class FoodItemAdapter(
@@ -27,6 +28,15 @@ class FoodItemAdapter(
     }
 
     override fun getItemCount(): Int = items.size
+
+    fun getItemAt(position: Int): FoodItem = items[position]
+
+    fun removeAt(position: Int){
+        val mutable = items.toMutableList()
+        mutable.removeAt(position)
+        items = mutable
+        notifyItemRemoved(position)
+    }
 
     class FoodItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameText: TextView = itemView.findViewById(R.id.itemName)
