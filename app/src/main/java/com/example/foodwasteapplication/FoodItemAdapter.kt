@@ -5,8 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener
 import java.time.LocalDate
+import android.widget.ImageView
+import com.bumptech.glide.Glide
 
 class FoodItemAdapter(
     private var items: List<FoodItem> = emptyList()
@@ -42,6 +43,8 @@ class FoodItemAdapter(
         private val nameText: TextView = itemView.findViewById(R.id.itemName)
         private val expiryText: TextView = itemView.findViewById(R.id.itemExpiry)
 
+        private val imageView: ImageView = itemView.findViewById(R.id.itemImage)
+
         private val container: View = itemView
         fun bind(item: FoodItem) {
             nameText.text = item.name
@@ -69,6 +72,13 @@ class FoodItemAdapter(
             }
 
             container.setBackgroundColor(itemView.context.getColor(colourRes))
+
+            if (!item.imageUrl.isNullOrBlank()){
+                Glide.with(itemView).load(item.imageUrl).centerCrop().into(imageView)
+            }
+            else {
+                imageView.setImageResource(android.R.drawable.ic_menu_report_image)
+            }
         }
     }
 }
