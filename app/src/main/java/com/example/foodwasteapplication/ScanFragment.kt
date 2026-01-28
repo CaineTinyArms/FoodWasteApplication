@@ -23,6 +23,11 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.common.InputImage
+import android.app.DatePickerDialog
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class ScanFragment : Fragment() {
 
@@ -158,12 +163,13 @@ class ScanFragment : Fragment() {
     }
 
     private var hasScanned = false
-
+    private var lastScannedBarcode: String = ""
     private fun onBarcodeScanned(code: String) {
         if (hasScanned) return
         hasScanned = true
 
         Log.d("ScanFragment", "Barcode: $code")
+        lastScannedBarcode = code
         fetchProductFromApi(code)
     }
 
@@ -214,7 +220,7 @@ class ScanFragment : Fragment() {
 
         yesButton.setOnClickListener {
             dialog.dismiss()
-            hasScanned = false
+            showExpiryPicker(barcode = lastScannedBarcode, name = name, imageUrl = imageUrl)
         }
 
         noButton.setOnClickListener {
@@ -229,4 +235,37 @@ class ScanFragment : Fragment() {
         previewView = null
         super.onDestroyView()
     }
+
+    private fun showExpiryPicker(barcode: String, name: String, imageUrl: String?) {
+        val today = LocalDate.now()
+        val dialog = DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val picked = LocalDate.of(year, month + 1, dayOfMonth) // month is 0-based
+                val expiryEpochDay = picked.toEpochDay()
+
+                val item = FoodItem(
+                    barcode = barcode,
+                    name = name,
+                    imageUrl = imageUrl,
+                    expiryDateEpochDay = expiryEpochDay
+                )
+
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val db = AppDatabase.getInstance(requireContext())
+                    db.foodItemDao().insert(item)
+                }
+
+                // Ready for the next scan
+                hasScanned = false
+            },
+            today.year, today.monthValue - 1, today.dayOfMonth
+        )
+
+        // prevent picking past dates
+        dialog.datePicker.minDate = System.currentTimeMillis() - 1000
+
+        dialog.show()
+    }
+
 }
