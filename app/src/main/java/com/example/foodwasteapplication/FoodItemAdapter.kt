@@ -32,6 +32,7 @@ class FoodItemAdapter(
         private val nameText: TextView = itemView.findViewById(R.id.itemName)
         private val expiryText: TextView = itemView.findViewById(R.id.itemExpiry)
 
+        private val container: View = itemView
         fun bind(item: FoodItem) {
             nameText.text = item.name
 
@@ -50,6 +51,14 @@ class FoodItemAdapter(
             }
 
             expiryText.text = "Expires: $formattedDate ($statusText)"
+
+            val colourRes = when {
+                daysRemaining < 0 -> android.R.color.holo_red_dark
+                daysRemaining <= 3 -> android.R.color.holo_orange_dark
+                else -> android.R.color.holo_green_dark
+            }
+
+            container.setBackgroundColor(itemView.context.getColor(colourRes))
         }
     }
 }
