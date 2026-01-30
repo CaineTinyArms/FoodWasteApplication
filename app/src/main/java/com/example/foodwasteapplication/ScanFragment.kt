@@ -142,18 +142,22 @@ class ScanFragment : Fragment() {
 
         val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
 
+        // Process the camera image for barcodes.
         scanner.process(inputImage).addOnSuccessListener { barcodes ->
                 for (barcode in barcodes)
                 {
                     val rawValue = barcode.rawValue
+                    // If there is a barcode visible
                     if (rawValue != null)
                     {
+                        // Log the barcode and send it to the onBarcodeScanned Function
                         Log.d("ScanFragment", "Barcode detected: $rawValue")
                         onBarcodeScanned(rawValue)
                         break
                     }
                 }
             }
+
             .addOnFailureListener {
                 Log.e("ScanFragment", "Barcode scanning failed", it)
             }
@@ -165,33 +169,40 @@ class ScanFragment : Fragment() {
     private var hasScanned = false
     private var lastScannedBarcode: String = ""
     private fun onBarcodeScanned(code: String) {
+        // Makes sure barcode is only processed once.
         if (hasScanned) return
         hasScanned = true
-
+        // Store the barcode for later use, and pass it on to the API function.
         Log.d("ScanFragment", "Barcode: $code")
         lastScannedBarcode = code
         fetchProductFromApi(code)
     }
 
     private fun fetchProductFromApi(barcode: String) {
+        // Calls the API with the scanned barcode using the RetrofitClient set up in RetrofitClient.kt
         val call = RetrofitClient.api.getProduct(barcode)
 
+        // Queues the call in the background so the app doesn't freeze
         call.enqueue(object : retrofit2.Callback<ProductResponse> {
+            // If a response is received from the API
             override fun onResponse(
                 call: retrofit2.Call<ProductResponse>,
                 response: retrofit2.Response<ProductResponse>
             ) {
                 val product = response.body()?.product
+                // If there is a product
                 if (product != null) {
                     showProductDialog(
-                        product.product_name ?: "Unknown product",
-                        product.image_url
+                        product.product_name ?: "Unknown product", // If product name received from the API is empty, default to unknown product.
+                        product.image_url // Store the image url received from the API.
                     )
+                  // If the product received back from the API was empty.
                 } else {
                     showProductDialog("Unknown product", null)
                 }
             }
 
+            // If a response is not received from the API
             override fun onFailure(call: retrofit2.Call<ProductResponse>, t: Throwable) {
                 Log.e("ScanFragment", "API failed", t)
                 showProductDialog("Product not found", null)
@@ -200,14 +211,16 @@ class ScanFragment : Fragment() {
     }
 
     private fun showProductDialog(name: String, imageUrl: String?){
+        // Load the popup xml.
         val dialogView = layoutInflater.inflate(R.layout.dialog_product_confirm, null)
         val imageView = dialogView.findViewById<ImageView>(R.id.productImage)
         val nameView = dialogView.findViewById<TextView>(R.id.productName)
         val yesButton = dialogView.findViewById<Button>(R.id.yesButton)
         val noButton = dialogView.findViewById<Button>(R.id.noButton)
 
+        // Sets the name to the product name.
         nameView.text = name
-
+        // If the product has an image, load it with Glide.
         if (!imageUrl.isNullOrEmpty()) {
             Glide.with(this).load(imageUrl).into(imageView)
             imageView.visibility = View.VISIBLE
@@ -218,11 +231,13 @@ class ScanFragment : Fragment() {
             .setCancelable(false)
             .create()
 
+        // If user presses yes, close the popup and bring up the expiry date picker.
         yesButton.setOnClickListener {
             dialog.dismiss()
             showExpiryPicker(barcode = lastScannedBarcode, name = name, imageUrl = imageUrl)
         }
 
+        // If user presses no, close the popup and allow scanning again.
         noButton.setOnClickListener {
             dialog.dismiss()
             hasScanned = false
@@ -241,9 +256,10 @@ class ScanFragment : Fragment() {
         val dialog = DatePickerDialog(
             requireContext(),
             { _, year, month, dayOfMonth ->
-                val picked = LocalDate.of(year, month + 1, dayOfMonth) // month is 0-based
-                val expiryEpochDay = picked.toEpochDay()
+                val picked = LocalDate.of(year, month + 1, dayOfMonth) // Month is 0-based
+                val expiryEpochDay = picked.toEpochDay() // Use how many days from 1970 (idk why 1970) because it's easier for sorting later on.
 
+                // creates the FoodItem that will go into the database.
                 val item = FoodItem(
                     barcode = barcode,
                     name = name,
@@ -251,6 +267,7 @@ class ScanFragment : Fragment() {
                     expiryDateEpochDay = expiryEpochDay
                 )
 
+                // Launch the database and insert the FoodItem.
                 lifecycleScope.launch(Dispatchers.IO) {
                     val db = AppDatabase.getInstance(requireContext())
                     db.foodItemDao().insert(item)
