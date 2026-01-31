@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity() {
         manager.createNotificationChannel(channel)
     }
 
+    // Schedule the worker to check for expiring food once a day.
     private fun scheduleExpiryWorker() {
         val request = PeriodicWorkRequestBuilder<ExpiryCheckWorker>(1, TimeUnit.DAYS).build()
 

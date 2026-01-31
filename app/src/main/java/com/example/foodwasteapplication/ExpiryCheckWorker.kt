@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit
 
 class ExpiryCheckWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
+    // Get list of items expiring today and tomorrow.
     override suspend fun doWork(): Result {
 
         val db = AppDatabase.getInstance(applicationContext)
@@ -29,6 +30,7 @@ class ExpiryCheckWorker(context: Context, params: WorkerParameters) : CoroutineW
         return Result.success()
     }
 
+    // Send a notification containing all the items expiring today and tomorrow.
     private fun sendNotification(items: List<FoodItem>) {
 
         val names = items.joinToString { it.name }
