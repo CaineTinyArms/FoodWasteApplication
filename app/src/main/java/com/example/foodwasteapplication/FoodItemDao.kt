@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 
+// This file is the SQL Queries that are used by the app when talking to the database.
+
 @Dao
 interface FoodItemDao {
 
