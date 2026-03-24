@@ -11,5 +11,6 @@ data class FoodItem(
     val barcode: String,
     val name: String,
     val imageUrl: String?,
-    val expiryDateEpochDay: Long // stored as "days since 1970", as it makes it easier to sort.
+    val expiryDateEpochDay: Long, // stored as "days since 1970", as it makes it easier to sort.
+    val category: String
 )

@@ -192,9 +192,16 @@ class ScanFragment : Fragment() {
                 val product = response.body()?.product
                 // If there is a product
                 if (product != null) {
+
+                    product.categories_tags
+                        ?.map { it.substringAfter(":")}
+                        ?.firstOrNull { it != "groceries" && it != "foods"}
+                        ?: "unknown"
+
                     showProductDialog(
                         product.product_name ?: "Unknown product", // If product name received from the API is empty, default to unknown product.
                         product.image_url // Store the image url received from the API.
+
                     )
                   // If the product received back from the API was empty.
                 } else {
@@ -234,7 +241,7 @@ class ScanFragment : Fragment() {
         // If user presses yes, close the popup and bring up the expiry date picker.
         yesButton.setOnClickListener {
             dialog.dismiss()
-            showExpiryPicker(barcode = lastScannedBarcode, name = name, imageUrl = imageUrl)
+            showExpiryPicker(barcode = lastScannedBarcode, name = name, imageUrl = imageUrl, category = "unknown")
         }
 
         // If user presses no, close the popup and allow scanning again.
@@ -251,7 +258,7 @@ class ScanFragment : Fragment() {
         super.onDestroyView()
     }
 
-    private fun showExpiryPicker(barcode: String, name: String, imageUrl: String?) {
+    private fun showExpiryPicker(barcode: String, name: String, imageUrl: String?, category: String) {
         val today = LocalDate.now()
         val dialog = DatePickerDialog(
             requireContext(),
@@ -264,7 +271,8 @@ class ScanFragment : Fragment() {
                     barcode = barcode,
                     name = name,
                     imageUrl = imageUrl,
-                    expiryDateEpochDay = expiryEpochDay
+                    expiryDateEpochDay = expiryEpochDay,
+                    category = category
                 )
 
                 // Launch the database and insert the FoodItem.

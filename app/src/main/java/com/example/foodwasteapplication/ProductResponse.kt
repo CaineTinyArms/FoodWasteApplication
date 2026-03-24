@@ -6,5 +6,6 @@ data class ProductResponse(
 
 data class Product(
     val product_name: String?,
-    val image_url: String?
+    val image_url: String?,
+    val categories_tags: List<String>?
 )
