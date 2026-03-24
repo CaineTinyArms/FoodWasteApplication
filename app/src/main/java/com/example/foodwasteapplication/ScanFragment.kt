@@ -193,9 +193,11 @@ class ScanFragment : Fragment() {
                 // If there is a product
                 if (product != null) {
 
+                    val usefulCategories = listOf("pastas")
+
                     val category = product.categories_tags
-                        ?.map { it.substringAfter(":")}
-                        ?.firstOrNull { it != "groceries" && it != "foods"}
+                        ?.map { it.substringAfter(":").lowercase()}
+                        ?.firstOrNull { it in usefulCategories}
                         ?: "unknown"
 
                     showProductDialog(
