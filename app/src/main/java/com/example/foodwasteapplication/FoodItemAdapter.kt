@@ -45,9 +45,12 @@ class FoodItemAdapter(
 
         private val imageView: ImageView = itemView.findViewById(R.id.itemImage)
 
+        private val categoryText: TextView = itemView.findViewById(R.id.itemCategory)
         private val container: View = itemView
         fun bind(item: FoodItem) {
             nameText.text = item.name
+
+            categoryText.text = "Category: ${item.category}"
 
             val expiryDate = LocalDate.ofEpochDay(item.expiryDateEpochDay)
             val todayDate = LocalDate.now()

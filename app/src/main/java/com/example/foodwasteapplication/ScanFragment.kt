@@ -193,31 +193,31 @@ class ScanFragment : Fragment() {
                 // If there is a product
                 if (product != null) {
 
-                    product.categories_tags
+                    val category = product.categories_tags
                         ?.map { it.substringAfter(":")}
                         ?.firstOrNull { it != "groceries" && it != "foods"}
                         ?: "unknown"
 
                     showProductDialog(
                         product.product_name ?: "Unknown product", // If product name received from the API is empty, default to unknown product.
-                        product.image_url // Store the image url received from the API.
-
+                        product.image_url, // Store the image url received from the API.
+                        category = category
                     )
                   // If the product received back from the API was empty.
                 } else {
-                    showProductDialog("Unknown product", null)
+                    showProductDialog("Unknown product", null, "unknown")
                 }
             }
 
             // If a response is not received from the API
             override fun onFailure(call: retrofit2.Call<ProductResponse>, t: Throwable) {
                 Log.e("ScanFragment", "API failed", t)
-                showProductDialog("Product not found", null)
+                showProductDialog("Product not found", null, "unknown")
             }
         })
     }
 
-    private fun showProductDialog(name: String, imageUrl: String?){
+    private fun showProductDialog(name: String, imageUrl: String?, category: String){
         // Load the popup xml.
         val dialogView = layoutInflater.inflate(R.layout.dialog_product_confirm, null)
         val imageView = dialogView.findViewById<ImageView>(R.id.productImage)
@@ -241,7 +241,7 @@ class ScanFragment : Fragment() {
         // If user presses yes, close the popup and bring up the expiry date picker.
         yesButton.setOnClickListener {
             dialog.dismiss()
-            showExpiryPicker(barcode = lastScannedBarcode, name = name, imageUrl = imageUrl, category = "unknown")
+            showExpiryPicker(barcode = lastScannedBarcode, name = name, imageUrl = imageUrl, category = category                                  )
         }
 
         // If user presses no, close the popup and allow scanning again.
