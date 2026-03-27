@@ -193,7 +193,7 @@ class ScanFragment : Fragment() {
                 // If there is a product
                 if (product != null) {
 
-                    val usefulCategories = listOf("pastas", "cheeses")
+                    val usefulCategories = listOf("pastas", "cheeses", "tomatoes", "chickens", "rices")
 
                     val category = product.categories_tags
                         ?.map { it.substringAfter(":").lowercase()}

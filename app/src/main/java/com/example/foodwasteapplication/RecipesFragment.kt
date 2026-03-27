@@ -70,6 +70,34 @@ class RecipesFragment : Fragment()
             )
         }
 
+        if (has("pastas") && has("tomatoes"))
+        {
+            val pastaItems = getItemsForCategory("pastas")
+            val tomatoItems = getItemsForCategory("tomatoes")
+
+            recipes.add(
+                Recipe(
+                    name = "Pasta with Tomato Sauce",
+                    imageRes = android.R.drawable.ic_menu_gallery,
+                    ingredientsUsed = (pastaItems + tomatoItems).distinct()
+                )
+            )
+        }
+
+        if (has("rices") && has("chickens"))
+        {
+            val riceItems = getItemsForCategory("rices")
+            val chickenItems = getItemsForCategory("chickens")
+
+            recipes.add(
+                Recipe(
+                    name = "Chicken and Rice",
+                    imageRes = android.R.drawable.ic_menu_gallery,
+                    ingredientsUsed = (riceItems + chickenItems).distinct()
+                )
+            )
+        }
+
         if (recipes.isEmpty())
         {
             recipes.add(
