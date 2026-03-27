@@ -9,6 +9,13 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.ImageView
+
+data class Recipe(
+    val name: String,
+    val imageRes: Int,
+    val ingredientsUsed: List<String>
+)
 
 class RecipesFragment : Fragment()
 {
@@ -37,23 +44,47 @@ class RecipesFragment : Fragment()
         }
     }
 
-    private fun generateRecipes(items:List<FoodItem>): List<String>
+    private fun generateRecipes(items: List<FoodItem>): List<Recipe>
     {
-        val categories = items.map { it.category }
+        val recipes = mutableListOf<Recipe>()
 
-        val recipes = mutableListOf<String>()
+        fun has(cat: String) = items.any { it.category == cat }
 
-        fun has(cat: String) = categories.contains(cat)
+        fun getItemsForCategory(cat: String): List<String> {
+            return items
+                .filter { it.category == cat }
+                .map { it.name }
+        }
 
         if (has("pastas") && has("cheeses"))
         {
-            recipes.add("Mac & Cheese")
+            val pastaItems = getItemsForCategory("pastas")
+            val cheeseItems = getItemsForCategory("cheeses")
+
+            recipes.add(
+                Recipe(
+                    name = "Mac & Cheese",
+                    imageRes = android.R.drawable.ic_menu_gallery,
+                    ingredientsUsed = (pastaItems + cheeseItems).distinct()
+                )
+            )
+        }
+
+        if (recipes.isEmpty())
+        {
+            recipes.add(
+                Recipe(
+                    name = "No recipes found",
+                    imageRes = android.R.drawable.ic_menu_report_image,
+                    ingredientsUsed = emptyList()
+                )
+            )
         }
 
         return recipes
     }
 
-    private fun showRecipes(recipes: List<String>)
+    private fun showRecipes(recipes: List<Recipe>)
     {
         val container = view?.findViewById<LinearLayout>(R.id.recipeContainer)
 
@@ -61,12 +92,27 @@ class RecipesFragment : Fragment()
 
         for (recipe in recipes)
         {
-            val textView = TextView(requireContext())
-            textView.text = recipe
-            textView.textSize = 18f
-            textView.setPadding(16, 16, 16, 16)
+            val recipeLayout = LinearLayout(requireContext())
+            recipeLayout.orientation = LinearLayout.VERTICAL
+            recipeLayout.setPadding(16, 16, 16, 16)
 
-            container?.addView(textView)
+            val title = TextView(requireContext())
+            title.text = recipe.name
+            title.textSize = 20f
+
+            val image = ImageView(requireContext())
+            image.setImageResource(recipe.imageRes)
+            image.layoutParams = LinearLayout.LayoutParams(200, 200)
+
+            val ingredients = TextView(requireContext())
+            ingredients.text = "Uses: ${recipe.ingredientsUsed.joinToString(", ")}"
+            ingredients.textSize = 14f
+
+            recipeLayout.addView(title)
+            recipeLayout.addView(image)
+            recipeLayout.addView(ingredients)
+
+            container?.addView(recipeLayout)
         }
     }
 }
